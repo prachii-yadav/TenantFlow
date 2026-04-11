@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const Role = require('../models/Role');
-const { isSuperAdmin } = require('../middleware/authMiddleware');
+const { isSuperAdmin, isManager } = require('../middleware/authMiddleware');
 
 // GET /api/v1/users?page=1&limit=10&search=jane&siteId=...&roleId=...
 const getUsers = async (req, res, next) => {
@@ -75,8 +75,13 @@ const createUser = async (req, res, next) => {
   try {
     const { name, email, password, siteId, roleId } = req.body;
 
-    if (!name || !email || !password || !siteId || !roleId) {
-      const err = new Error('name, email, password, siteId, and roleId are all required');
+    const requiresSite = !isSuperAdmin(req.user);
+    if (!name || !email || !password || (requiresSite && !siteId) || !roleId) {
+      const err = new Error(
+        requiresSite
+          ? 'name, email, password, siteId, and roleId are all required'
+          : 'name, email, password, and roleId are all required'
+      );
       err.statusCode = 400;
       return next(err);
     }
@@ -85,6 +90,12 @@ const createUser = async (req, res, next) => {
     if (role?.name?.toLowerCase() === 'super admin') {
       const err = new Error('Super Admin cannot be assigned when creating a user');
       err.statusCode = 400;
+      return next(err);
+    }
+
+    if (isManager(req.user) && role?.name?.toLowerCase() !== 'viewer') {
+      const err = new Error('Managers can only create users with the Viewer role');
+      err.statusCode = 403;
       return next(err);
     }
 
@@ -123,10 +134,17 @@ const updateUser = async (req, res, next) => {
     }
 
     // Fetch user first so the pre-save hook can hash a new password
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).populate('roleId', 'name');
     if (!user) {
       const err = new Error('User not found');
       err.statusCode = 404;
+      return next(err);
+    }
+
+    // Managers can only edit Viewer-role users
+    if (isManager(req.user) && user.roleId?.name?.toLowerCase() !== 'viewer') {
+      const err = new Error('Managers can only edit users with the Viewer role');
+      err.statusCode = 403;
       return next(err);
     }
 
@@ -135,6 +153,12 @@ const updateUser = async (req, res, next) => {
       if (role?.name?.toLowerCase() === 'super admin') {
         const err = new Error('Super Admin cannot be assigned to a user');
         err.statusCode = 400;
+        return next(err);
+      }
+      // Managers can only assign the Viewer role
+      if (isManager(req.user) && role?.name?.toLowerCase() !== 'viewer') {
+        const err = new Error('Managers can only assign the Viewer role');
+        err.statusCode = 403;
         return next(err);
       }
       user.roleId = roleId;

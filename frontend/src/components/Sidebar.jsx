@@ -61,12 +61,14 @@ export default function Sidebar() {
         </div>
 
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-indigo-400 w-8 shrink-0">Site</span>
-            <span className="text-xs bg-indigo-800 text-indigo-100 px-2 py-0.5 rounded-full truncate">
-              {user?.siteId?.name || '—'}
-            </span>
-          </div>
+          {!isSuperAdmin && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-indigo-400 w-8 shrink-0">Site</span>
+              <span className="text-xs bg-indigo-800 text-indigo-100 px-2 py-0.5 rounded-full truncate">
+                {user?.siteId?.name || '—'}
+              </span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <span className="text-xs text-indigo-400 w-8 shrink-0">Role</span>
             <span className="text-xs bg-indigo-800 text-indigo-100 px-2 py-0.5 rounded-full truncate">

@@ -9,11 +9,13 @@ import { getUsers, createUser, updateUser, deleteUser, deactivateUser, activateU
 import { getRoles } from '../api/roles';
 import { getSites } from '../api/sites';
 import { useRole } from '../hooks/useRole';
+import { useAuth } from '../context/AuthContext';
 
 const EMPTY_FORM = { name: '', email: '', password: '', siteId: '', roleId: '' };
 
 export default function Users() {
-  const { canCreate, canEdit, canDelete } = useRole();
+  const { canCreate, canEdit, canDelete, isSuperAdmin, isManager } = useRole();
+  const { user: currentUser } = useAuth();
 
   const [users, setUsers]           = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
@@ -57,7 +59,10 @@ export default function Users() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm(EMPTY_FORM);
+    setForm({
+      ...EMPTY_FORM,
+      siteId: isSuperAdmin ? '' : (currentUser?.siteId?._id || ''),
+    });
     setShowModal(true);
   };
 
@@ -189,32 +194,34 @@ export default function Users() {
                   <td className="px-4 py-3 text-sm text-gray-500">{u.roleId?.name || '—'}</td>
                   <td className="px-4 py-3"><Badge active={u.isActive} /></td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {canEdit && (
-                        <button
-                          onClick={() => openEdit(u)}
-                          className="text-indigo-600 hover:text-indigo-800 text-xs font-medium"
-                        >
-                          Edit
-                        </button>
-                      )}
-                      {canEdit && (
-                        <button
-                          onClick={() => handleToggleActive(u)}
-                          className={`text-xs font-medium ${u.isActive ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}`}
-                        >
-                          {u.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
-                      )}
-                      {canDelete && (
-                        <button
-                          onClick={() => handleDelete(u)}
-                          className="text-red-500 hover:text-red-700 text-xs font-medium"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
+                    {(!isManager || u.roleId?.name?.toLowerCase() === 'viewer') && (
+                      <div className="flex items-center gap-2">
+                        {canEdit && (
+                          <button
+                            onClick={() => openEdit(u)}
+                            className="text-indigo-600 hover:text-indigo-800 text-xs font-medium"
+                          >
+                            Edit
+                          </button>
+                        )}
+                        {canEdit && (
+                          <button
+                            onClick={() => handleToggleActive(u)}
+                            className={`text-xs font-medium ${u.isActive ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}`}
+                          >
+                            {u.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(u)}
+                            className="text-red-500 hover:text-red-700 text-xs font-medium"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -292,17 +299,20 @@ export default function Users() {
                 placeholder={editing ? '••••••••' : 'Min 6 characters'}
               />
             </Field>
-            <Field label="Site">
-              <select
-                required
-                value={form.siteId}
-                onChange={(e) => setForm({ ...form, siteId: e.target.value })}
-                className="input"
-              >
-                <option value="">Select a site</option>
-                {sites.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
-              </select>
-            </Field>
+            {!isSuperAdmin && (
+              <Field label="Site">
+                <select
+                  required
+                  disabled
+                  value={form.siteId}
+                  onChange={(e) => setForm({ ...form, siteId: e.target.value })}
+                  className="input disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                >
+                  <option value="">Select a site</option>
+                  {sites.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
+                </select>
+              </Field>
+            )}
             <Field label="Role">
               <select
                 required
@@ -313,6 +323,7 @@ export default function Users() {
                 <option value="">Select a role</option>
                 {roles
                   .filter((r) => r.name.toLowerCase() !== 'super admin')
+                  .filter((r) => !isManager || r.name.toLowerCase() === 'viewer')
                   .map((r) => <option key={r._id} value={r._id}>{r.name}</option>)}
               </select>
             </Field>

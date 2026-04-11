@@ -3,10 +3,12 @@ import Layout from '../components/Layout';
 import Modal from '../components/Modal';
 import Spinner from '../components/Spinner';
 import { useAuth } from '../context/AuthContext';
+import { useRole } from '../hooks/useRole';
 import { updateUser } from '../api/users';
 
 export default function Profile() {
   const { user, refreshUser } = useAuth();
+  const { isSuperAdmin } = useRole();
 
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm]         = useState({ name: '', email: '', password: '' });
@@ -40,7 +42,7 @@ export default function Profile() {
     { label: 'Full Name', value: user?.name },
     { label: 'Email',     value: user?.email },
     { label: 'Role',      value: user?.roleId?.name || '—' },
-    { label: 'Site',      value: user?.siteId?.name || '—' },
+    ...(!isSuperAdmin ? [{ label: 'Site', value: user?.siteId?.name || '—' }] : []),
     { label: 'Status',    value: user?.isActive ? 'Active' : 'Inactive', highlight: user?.isActive },
   ];
 
