@@ -23,7 +23,7 @@ TenantFlow/
 │   └── src/
 │       ├── app.js
 │       ├── config/db.js
-│       ├── middleware/       # authMiddleware (protect, isSuperAdmin, isManager), errorHandler
+│       ├── middleware/       # authMiddleware (protect, isSuperAdmin, isAdmin, isManager), errorHandler
 │       ├── models/           # User, Role, Site
 │       ├── controllers/      # auth, user, role, site, dashboard
 │       └── routes/
@@ -31,7 +31,7 @@ TenantFlow/
     └── src/
         ├── api/              # axios instance + auth, users, roles, sites, dashboard
         ├── context/          # AuthContext (user, login, logout, refreshUser)
-        ├── hooks/            # useRole (isSuperAdmin, isManager, canCreate, canEdit, canDelete)
+        ├── hooks/            # useRole (isSuperAdmin, isAdmin, isManager, canCreate, canEdit, canDelete)
         ├── components/       # Layout, Sidebar, Modal, Badge, Spinner, Pagination, ProtectedRoute
         └── pages/            # Login, Dashboard, Users, Roles, Sites, Profile
 ```
@@ -52,8 +52,8 @@ TenantFlow/
 ### User Management
 - Paginated + searchable table; logged-in user is excluded (managed via Profile)
 - **Create / Edit / Deactivate / Activate / Delete** — all destructive actions use confirmation modals (no `window.confirm`)
-- Site is **pre-filled and disabled** for non-Super-Admin creators (locked to their own site)
-- Super Admin has no site field in the create form or profile
+- **Super Admin** — site dropdown is fully editable (can assign any site when creating a user)
+- **Admin / Manager / Viewer** — site is pre-filled with their own site and disabled
 
 ### Profile
 - View name, email, role, status (site hidden for Super Admin)
@@ -73,21 +73,27 @@ TenantFlow/
 | Dashboard — site-scoped | — | ✅ | ✅ | ✅ |
 | View users (all sites) | ✅ | — | — | — |
 | View users (own site) | — | ✅ | ✅ | ✅ |
-| Create users | ✅ | ✅ | Viewer only | — |
-| Edit users | ✅ | ✅ | Viewer only | — |
-| Delete / Deactivate | ✅ | ✅ | — | — |
+| Create users | ✅ | ✅ (non-Admin roles only) | Viewer only | — |
+| Edit users | ✅ | ✅ (non-Admin only) | Viewer only | — |
+| Delete / Deactivate | ✅ | ✅ (non-Admin only) | — | — |
 | Manage roles | ✅ | ✅ | — | — |
 | Manage sites | ✅ | — | — | — |
 | Own profile | ✅ | ✅ | ✅ | ✅ |
 
+**Admin restrictions (enforced on both frontend and backend):**
+- Cannot create users with the **Admin** role (filtered from dropdown)
+- Cannot edit, deactivate, or delete other **Admin** users — action buttons hidden in the table
+- Backend returns 403 if these rules are violated via direct API calls
+
 **Manager restrictions (enforced on both frontend and backend):**
 - Can only create/edit users with the **Viewer** role
-- Action buttons are hidden for non-Viewer rows in the user table
+- Action buttons hidden for all non-Viewer rows in the user table
 - Backend returns 403 if these rules are violated via direct API calls
 
 **Super Admin guardrails:**
 - Cannot be assigned to any user (blocked in UI dropdown + backend validation)
-- Has no site affiliation (`siteId: null`) — site field hidden across sidebar, profile, and user forms
+- Has no site affiliation — site field hidden across sidebar, profile, and user forms
+- Can assign any site when creating a user
 
 ---
 

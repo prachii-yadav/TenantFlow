@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const Role = require('../models/Role');
-const { isSuperAdmin, isManager } = require('../middleware/authMiddleware');
+const { isSuperAdmin, isAdmin, isManager } = require('../middleware/authMiddleware');
 
 // GET /api/v1/users?page=1&limit=10&search=jane&siteId=...&roleId=...
 const getUsers = async (req, res, next) => {
@@ -133,6 +133,13 @@ const updateUser = async (req, res, next) => {
     if (!user) {
       const err = new Error('User not found');
       err.statusCode = 404;
+      return next(err);
+    }
+
+    // Admins cannot edit other Admin-role users
+    if (isAdmin(req.user) && user.roleId?.name?.toLowerCase() === 'admin') {
+      const err = new Error('Admins cannot edit other Admin users');
+      err.statusCode = 403;
       return next(err);
     }
 

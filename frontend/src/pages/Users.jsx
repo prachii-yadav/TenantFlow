@@ -14,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
 const EMPTY_FORM = { name: '', email: '', password: '', siteId: '', roleId: '' };
 
 export default function Users() {
-  const { canCreate, canEdit, canDelete, isSuperAdmin, isManager } = useRole();
+  const { canCreate, canEdit, canDelete, isSuperAdmin, isAdmin, isManager } = useRole();
   const { user: currentUser } = useAuth();
 
   const [users, setUsers]           = useState([]);
@@ -194,7 +194,8 @@ export default function Users() {
                   <td className="px-4 py-3 text-sm text-gray-500">{u.roleId?.name || '—'}</td>
                   <td className="px-4 py-3"><Badge active={u.isActive} /></td>
                   <td className="px-4 py-3">
-                    {(!isManager || u.roleId?.name?.toLowerCase() === 'viewer') && (
+                    {(!isManager || u.roleId?.name?.toLowerCase() === 'viewer') &&
+                     (!isAdmin   || u.roleId?.name?.toLowerCase() !== 'admin') && (
                       <div className="flex items-center gap-2">
                         {canEdit && (
                           <button
@@ -335,6 +336,7 @@ export default function Users() {
                 <option value="">Select a role</option>
                 {roles
                   .filter((r) => r.name.toLowerCase() !== 'super admin')
+                  .filter((r) => !isAdmin || r.name.toLowerCase() !== 'admin')
                   .filter((r) => !isManager || r.name.toLowerCase() === 'viewer')
                   .map((r) => <option key={r._id} value={r._id}>{r.name}</option>)}
               </select>

@@ -47,8 +47,12 @@ const protect = async (req, _res, next) => {
 const isSuperAdmin = (user) =>
   user?.roleId?.name?.toLowerCase() === 'super admin';
 
+// Convenience: returns true if the user's role is "Admin"
+const isAdmin = (user) =>
+  user?.roleId?.name?.toLowerCase() === 'admin';
+
 // Convenience: returns true if the user's role is "Manager"
 const isManager = (user) =>
   user?.roleId?.name?.toLowerCase() === 'manager';
 
-module.exports = { protect, isSuperAdmin, isManager };
+module.exports = { protect, isSuperAdmin, isAdmin, isManager };
