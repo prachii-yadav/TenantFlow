@@ -299,7 +299,19 @@ export default function Users() {
                 placeholder={editing ? '••••••••' : 'Min 6 characters'}
               />
             </Field>
-            {!isSuperAdmin && (
+            {isSuperAdmin ? (
+              <Field label="Site">
+                <select
+                  required
+                  value={form.siteId}
+                  onChange={(e) => setForm({ ...form, siteId: e.target.value })}
+                  className="input"
+                >
+                  <option value="">Select a site</option>
+                  {sites.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
+                </select>
+              </Field>
+            ) : (
               <Field label="Site">
                 <select
                   required

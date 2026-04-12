@@ -75,13 +75,8 @@ const createUser = async (req, res, next) => {
   try {
     const { name, email, password, siteId, roleId } = req.body;
 
-    const requiresSite = !isSuperAdmin(req.user);
-    if (!name || !email || !password || (requiresSite && !siteId) || !roleId) {
-      const err = new Error(
-        requiresSite
-          ? 'name, email, password, siteId, and roleId are all required'
-          : 'name, email, password, and roleId are all required'
-      );
+    if (!name || !email || !password || !siteId || !roleId) {
+      const err = new Error('name, email, password, siteId, and roleId are all required');
       err.statusCode = 400;
       return next(err);
     }
