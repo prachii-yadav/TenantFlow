@@ -43,55 +43,47 @@ const seed = async () => {
         isActive: true,
       },
       {
-        name:     'Admin User',
-        email:    'admin@tenantflow.com',
+        name:     'Admin Acne',
+        email:    'admin@acne.com',
         password: 'admin123',
         siteId:   acmeSite._id,
         roleId:   adminRole._id,
         isActive: true,
       },
       {
-        name:     'Manager User',
-        email:    'manager@tenantflow.com',
+        name:     'Manager Acme',
+        email:    'manager@acme.com',
         password: 'manager123',
         siteId:   acmeSite._id,
         roleId:   managerRole._id,
         isActive: true,
       },
       {
-        name:     'Viewer User',
-        email:    'viewer@tenantflow.com',
+        name:     'Viewer Beta',
+        email:    'viewer@beta.com',
         password: 'viewer123',
         siteId:   betaSite._id,
         roleId:   viewerRole._id,
         isActive: true,
       },
       {
-        name:     'Beta Admin',
+        name:     'Admin Beta',
         email:    'admin@beta.io',
         password: 'admin123',
         siteId:   betaSite._id,
         roleId:   adminRole._id,
         isActive: true,
       },
-      {
-        name:     'Inactive User',
-        email:    'inactive@tenantflow.com',
-        password: 'inactive123',
-        siteId:   betaSite._id,
-        roleId:   viewerRole._id,
-        isActive: false,
-      },
     ]);
     console.log('Users created.');
 
     console.log('\n✔ Seed complete! Login credentials:');
     console.log('──────────────────────────────────────────────────────');
-    console.log('  Super Admin → superadmin@tenantflow.com / superadmin123  (sees ALL sites)');
-    console.log('  Admin       → admin@tenantflow.com      / admin123        (Acme Corp only)');
-    console.log('  Admin       → admin@beta.io             / admin123        (Beta Inc only)');
-    console.log('  Manager     → manager@tenantflow.com    / manager123      (Acme Corp only)');
-    console.log('  Viewer      → viewer@tenantflow.com     / viewer123       (Beta Inc only)');
+    console.log('  Super Admin  → superadmin@tenantflow.com / superadmin123  (all sites)');
+    console.log('  Admin Acne   → admin@acne.com            / admin123        (Acme Corp)');
+    console.log('  Manager Acme → manager@acme.com          / manager123      (Acme Corp)');
+    console.log('  Viewer Beta  → viewer@beta.com           / viewer123       (Beta Inc)');
+    console.log('  Admin Beta   → admin@beta.io             / admin123        (Beta Inc)');
     console.log('──────────────────────────────────────────────────────');
 
   } catch (err) {

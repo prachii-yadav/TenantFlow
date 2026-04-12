@@ -156,10 +156,9 @@ cd ../frontend && npm install && npm run dev   # starts on http://localhost:5175
 | Role | Email | Password | Site |
 |---|---|---|---|
 | Super Admin | superadmin@tenantflow.com | superadmin123 | — |
-| Admin | admin@tenantflow.com | admin123 | Acme Corp |
+| Admin | admin@acne.com | admin123 | Acme Corp |
+| Manager | manager@acme.com | manager123 | Acme Corp |
+| Viewer | viewer@beta.com | viewer123 | Beta Inc |
 | Admin | admin@beta.io | admin123 | Beta Inc |
-| Manager | manager@tenantflow.com | manager123 | Acme Corp |
-| Viewer | viewer@tenantflow.com | viewer123 | Beta Inc |
-| Inactive | inactive@tenantflow.com | inactive123 | Beta Inc |
 
 > Run `node seed.js` from `backend/` at any time to reset to this state.
