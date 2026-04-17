@@ -9,7 +9,7 @@ import { useRole } from '../hooks/useRole';
 const EMPTY_FORM = { name: '', description: '' };
 
 export default function Roles() {
-  const { canEdit, canDelete } = useRole();
+  const { canEdit, isSuperAdmin } = useRole();
 
   const [roles, setRoles]         = useState([]);
   const [search, setSearch]       = useState('');
@@ -98,7 +98,7 @@ export default function Roles() {
               onEdit={() => openEdit(role)}
               onDelete={() => handleDelete(role)}
               canEdit={canEdit}
-              canDelete={canDelete}
+              canDelete={isSuperAdmin}
             />
           ))}
         </div>
